@@ -1,7 +1,5 @@
 pandas
-pickle
 lightgbm
-json
 sklearn
 scipy
 BioPython
