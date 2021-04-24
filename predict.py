@@ -61,8 +61,9 @@ def featurize(pdb_file):
     Calculates 3D ML features from the `structure`.
     """
     df = pd.read_csv('feautures_model.csv')
+    df['protein'] = df.index
     features = df[df['protein' ] == pdb_file[:-4]]
-    features = features.iloc[:,1:]
+    features = features.drop(columns=['protein'])
     
     return features
 
