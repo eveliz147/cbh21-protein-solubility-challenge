@@ -11,65 +11,75 @@ import pprint
 from typing import Any
 import zipfile
 
-from Bio.PDB.PDBParser import PDBParser
-from Bio.PDB.ResidueDepth import get_surface
-from Bio.PDB.vectors import calc_dihedral
-from Bio.PDB.Structure import Structure
 import temppathlib
 
 
-def predict(pdb_file: Path) -> float:
+
+import pandas as pd
+import numpy as np
+import pickle
+from sklearn.ensemble import RandomForestRegressor
+import lightgbm as lgbm
+from sklearn.svm import SVR
+from sklearn.linear_model import Ridge
+import pathlib
+import json 
+
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.metrics import mean_squared_error
+from scipy.stats import pearsonr
+from sklearn.feature_selection import RFECV
+
+
+
+def predict(pdb_file):
     """
     The function that puts it all together: parsing the PDB file, generating
     features from it and performing inference with the ML model.
     """
 
-    # parse PDB
-    parser = PDBParser()
-    structure = parser.get_structure(pdb_file.stem, pdb_file)
-
+    
     # featurize + perform inference
     features = featurize(structure)
     predicted_solubility = ml_inference(features)
 
     return predicted_solubility
 
+def read_model(filename):
+  with open(filename, 'rb') as file:
+    clf = pickle.load(file)
+  return(clf)
+  
+def prediction(clf, x_test):
+  y_pred = clf.predict(x_test)
+  return(y_pred)
+  
 
-def featurize(structure: Structure) -> list[Any]:
+def featurize(pdb_file):
     """
     Calculates 3D ML features from the `structure`.
     """
-
-    # get all the residues
-    residues = [res for res in structure.get_residues()]
-
-    # calculate some random 3D features (you should be smarter here!)
-    protein_length = residues[1]["CA"] - residues[-2]["CA"]
-    angle = calc_dihedral(
-        residues[1]["CA"].get_vector(),
-        residues[2]["CA"].get_vector(),
-        residues[-3]["CA"].get_vector(),
-        residues[-2]["CA"].get_vector(),
-    )
-    # create the feature vector
-    features = [protein_length, angle]
-
+    df = pd.read_csv('feautures_model.csv')
+    features = df[df['protein' ] == pdb_file[:-4]]
+    features = features.iloc[:,1:]
+    
     return features
 
 
-def ml_inference(features: list[Any]) -> float:
+def ml_inference(features):
     """
     This would be a function where you normalize/standardize your features and
     then feed them to your trained ML model (which you would load from a file).
     """
+    # read model
+    clf = read_model('model.pkl')
+    y_pred = prediction(clf, features)
+    
+    #predict
+    
 
-    # this is my stupid manual ML model
-    if features[0] > 15.0 and features[1] > 0.5:
-        return 60
-    elif features[0] > 30.0 and features[1] > 1.5:
-        return 80
-
-    return 20
+    return y_pred[0]
 
 
 if __name__ == "__main__":
