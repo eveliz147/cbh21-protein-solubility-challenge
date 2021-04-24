@@ -1,9 +1,9 @@
 pandas
+pickle
+lightgbm
+json
 sklearn
 scipy
 BioPython
 numpy
 temppathlib
-pickle
-lightgbm
-json
