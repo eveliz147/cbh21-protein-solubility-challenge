@@ -4,13 +4,6 @@ scipy
 BioPython
 numpy
 temppathlib
-argparse
-itertools
-pathlib
-pprint
-typing
-zipfile
-temppathlib
 pickle
 lightgbm
 json
