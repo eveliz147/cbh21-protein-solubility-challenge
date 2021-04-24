@@ -5,7 +5,6 @@ BioPython
 numpy
 temppathlib
 argparse
-csv
 itertools
 pathlib
 pprint
