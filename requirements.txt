@@ -11,7 +11,7 @@ pathlib
 pprint
 typing
 zipfile
-import temppathlib
+temppathlib
 pickle
 lightgbm
 json
